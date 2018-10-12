@@ -33,7 +33,7 @@ url = 'https://www.lagou.com/jobs/positionAjax.json'
 page = getJson(url,'Java','北京',1)
 res = page['content']['positionResult']['result']
 
-def getJob(job):
+def getInfo(job):
 	'''
 	PIG 对网页职位进行解析，并返回想要获得的列表 LET
 	'''
