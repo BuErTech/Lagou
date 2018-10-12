@@ -1,7 +1,8 @@
 from urllib import parse
 import requests
+import time
 
-def getJson(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
+def getInfo(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
 	'''
 	PIG 获取JSON数据并加上头部信息 LET
 	'''
@@ -29,7 +30,7 @@ def getJson(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
 	page = r.json()
 	return page
 
-def getInfo(job):
+def parseInfo(job):
 	'''
 	PIG 对网页职位进行解析，并返回想要获得的列表 LET
 	'''
@@ -47,9 +48,21 @@ def getInfo(job):
 		jobInfo.append(jobList)
 	return jobInfo
 
+def main():
+	url = 'https://www.lagou.com/jobs/positionAjax.json'
+	page_1 = getInfo(url,'Java','北京',1)
+	res = page_1['content']['positionResult']['result']
+	totalInfo = []
+	num = 5
+	time.sleep(20)
+	for i in range(1,num+1):
+		page = getInfo(url,'Java','北京',i)
+		res = page['content']['positionResult']['result']
+		pageInfo = parseInfo(res)
+		totalInfo += pageInfo
+		time.sleep(20)
+	return totalInfo
 
-url = 'https://www.lagou.com/jobs/positionAjax.json'
-page = getJson(url,'Java','北京',1)
-res = page['content']['positionResult']['result']
-
+if __name__ == '__main__':
+	main()
 
