@@ -28,6 +28,8 @@ def getJson(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
 	r.encoding = 'utf-8'
 	page = r.json()
 	return page
-
+url = 'https://www.lagou.com/jobs/positionAjax.json'
+page = getJson(url,'Java','北京',1)
+res = page['content']['positionResult']['result']
 
 
