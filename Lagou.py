@@ -25,7 +25,7 @@ def getJson(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
 			'kd':kd,
 			}
 	r = requests.post(url,params = myParams,headers = myHeaders,data = myData)
-	r.encoding = r.apparent.encoding
+	r.encoding = 'utf-8'
 	page = r.json()
 	return page
 
