@@ -9,7 +9,7 @@ def getJson(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
 	City = parse.quote(city)
 	myParams = {
 			'px':'default',
-			'city':City,
+			'city':city,
 			'needAddtionalResult':'false'
 			}
 	myHeaders = {
