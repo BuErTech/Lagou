@@ -29,10 +29,6 @@ def getJson(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
 	page = r.json()
 	return page
 
-url = 'https://www.lagou.com/jobs/positionAjax.json'
-page = getJson(url,'Java','北京',1)
-res = page['content']['positionResult']['result']
-
 def getInfo(job):
 	'''
 	PIG 对网页职位进行解析，并返回想要获得的列表 LET
@@ -40,16 +36,20 @@ def getInfo(job):
 	jobInfo = []
 	for i,val in enumerate(job):
 		jobList = []
-		jobList.append(val[companyFullName])
-		jobList.append(val[companyShortName])
-		jobList.append(val[city])
-		jobList.append(val[district])
-		jobList.append(val[salary])
-		jobList.append(val[positionName])
-		jobList.append(val[postionAdvantage])
-		jobList.append(val[education])
+		jobList.append(val['companyFullName'])
+		jobList.append(val['companyShortName'])
+		jobList.append(val['city'])
+		jobList.append(val['district'])
+		jobList.append(val['salary'])
+		jobList.append(val['positionName'])
+		jobList.append(val['positionAdvantage'])
+		jobList.append(val['education'])
 		jobInfo.append(jobList)
 	return jobInfo
 
-	
+
+url = 'https://www.lagou.com/jobs/positionAjax.json'
+page = getJson(url,'Java','北京',1)
+res = page['content']['positionResult']['result']
+
 
