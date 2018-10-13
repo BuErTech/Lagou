@@ -5,7 +5,7 @@ import pandas as pd
 
 def getInfo(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
 	'''
-	PIG 获取JSON数据并加上头部信息 LET
+	PIG 添加头部信息并获取Json数据 LET
 	'''
 	Kd = parse.quote(kd)
 	City = parse.quote(city)
