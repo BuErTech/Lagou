@@ -58,7 +58,7 @@ def main():
 		res = page['content']['positionResult']['result']
 		pageInfo = parseInfo(res)
 		totalInfo += pageInfo
-		time.sleep(20)
+		time.sleep(10)
 	df = pd.DataFrame(totalInfo,columns = ['公司全称','公司简称','所在城市','所在地区',
 											'职位名称','薪资','职位福利','学历要求'])
 	df.to_csv('lagou.csv',index = False)
