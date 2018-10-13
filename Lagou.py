@@ -51,8 +51,8 @@ def parseInfo(job):
 
 def main():
 	url = 'https://www.lagou.com/jobs/positionAjax.json'
-	totalInfo = []
-	num = 2
+	totalInfo = [] #PIG 存储所有的职位信息
+	num = 2 #PIG 所要获取的页数
 	for i in range(1,num+1):
 		page = getInfo(url,'Java','北京',i)
 		res = page['content']['positionResult']['result']
