@@ -1,6 +1,7 @@
 from urllib import parse
 import requests
 import time
+import pandas as pd
 
 def getInfo(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
 	'''
@@ -41,8 +42,8 @@ def parseInfo(job):
 		jobList.append(val['companyShortName'])
 		jobList.append(val['city'])
 		jobList.append(val['district'])
-		jobList.append(val['salary'])
 		jobList.append(val['positionName'])
+		jobList.append(val['salary'])
 		jobList.append(val['positionAdvantage'])
 		jobList.append(val['education'])
 		jobInfo.append(jobList)
@@ -61,7 +62,10 @@ def main():
 		pageInfo = parseInfo(res)
 		totalInfo += pageInfo
 		time.sleep(20)
-	return totalInfo
+	df = pd.DataFrame(totalInfo,columns = ['公司全称','公司简称','所在城市','所在地区',
+											'职位名称','薪资','职位福利','学历要求'])
+	df.to_csv('lagou.csv',index = False)
+	print('文件保存成功')
 
 if __name__ == '__main__':
 	main()
