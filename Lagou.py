@@ -51,11 +51,8 @@ def parseInfo(job):
 
 def main():
 	url = 'https://www.lagou.com/jobs/positionAjax.json'
-	page_1 = getInfo(url,'Java','北京',1)
-	res = page_1['content']['positionResult']['result']
 	totalInfo = []
-	num = 5
-	time.sleep(20)
+	num = 2
 	for i in range(1,num+1):
 		page = getInfo(url,'Java','北京',i)
 		res = page['content']['positionResult']['result']
