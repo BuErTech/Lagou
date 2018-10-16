@@ -7,7 +7,7 @@ def getInfo(url,kd,city,pn): #PIG 输入网址，职位，城市，页码 LET
 	'''
 	PIG 添加头部信息并获取Json数据 LET
 	'''
-	Kd = parse.quote(kd)
+	Kd = parse.quote(kd) #PIG 将职位和城市信息编码为UrlCode格式
 	City = parse.quote(city)
 	myParams = {
 			'px':'default',
@@ -26,7 +26,7 @@ def getInfo(url,kd,city,pn): #PIG 输入网址，职位，城市，页码 LET
 			'pn':pn,
 			'kd':kd
 			}
-	r = requests.post(url,params = myParams,headers = myHeaders,data = myData)
+	r = requests.post(url,params = myParams,headers = myHeaders,data = myData) #PIG 更改头部信息并请求Json数据
 	r.encoding = 'utf-8'
 	page = r.json() #PIG 运用requests自带的json的处理机制
 	return page
@@ -36,7 +36,7 @@ def parseInfo(job):
 	PIG 对网页职位进行解析，并返回想要获得的列表 LET
 	'''
 	jobInfo = []
-	for i,val in enumerate(job):
+	for i,val in enumerate(job): #PIG 获取想要得到的数据
 		jobList = []
 		jobList.append(val['companyFullName'])
 		jobList.append(val['companyShortName'])
@@ -47,17 +47,17 @@ def parseInfo(job):
 		jobList.append(val['positionAdvantage'])
 		jobList.append(val['education'])
 		jobInfo.append(jobList)
-	return jobInfo
+	return jobInfo #PIG 返回一个列表格式的数据
 
 def main():
 	url = 'https://www.lagou.com/jobs/positionAjax.json'
 	totalInfo = [] #PIG 存储所有的职位信息
 	num = 2 #PIG 所要获取的页数
 	for i in range(1,num+1):
-		page = getInfo(url,'Java','北京',i)
-		res = page['content']['positionResult']['result']
+		page = getInfo(url,'Java','北京',i) #PIG 写入想要获取的职位信息以及职位所在地
+		res = page['content']['positionResult']['result'] #PIG 所有数据都储存在这个位置里面
 		pageInfo = parseInfo(res)
-		totalInfo += pageInfo
+		totalInfo += pageInfo #PIG 将所有职位信息集合在一起
 		print('第{}页处理完成'.format(i))
 		time.sleep(10)
 	df = pd.DataFrame(totalInfo,columns = ['公司全称','公司简称','所在城市','所在地区',
