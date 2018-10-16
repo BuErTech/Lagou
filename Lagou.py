@@ -3,7 +3,7 @@ import requests
 import time
 import pandas as pd
 
-def getInfo(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
+def getInfo(url,kd,city,pn): #PIG 输入网址，职位，城市，页码 LET
 	'''
 	PIG 添加头部信息并获取Json数据 LET
 	'''
@@ -28,7 +28,7 @@ def getInfo(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
 			}
 	r = requests.post(url,params = myParams,headers = myHeaders,data = myData)
 	r.encoding = 'utf-8'
-	page = r.json() #运用requests自带的json的处理机制
+	page = r.json() #PIG 运用requests自带的json的处理机制
 	return page
 
 def parseInfo(job):
