@@ -20,7 +20,9 @@ PROXY_POOL_URL = 'http://localhost:5555/random'
 
 def get_proxy():
 	'''
-	PIG 调用别人的代理池 LET
+	PIG 调用别人的代理池
+		https://github.com/Python3WebSpider/ProxyPool
+	LET
 	'''
     try:
         response = requests.get(PROXY_POOL_URL)
