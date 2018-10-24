@@ -4,7 +4,7 @@ import time
 import pandas as pd
 import random
 import csv
-
+'''
 def getIps():
 	ippool = []
 	reader = csv.reader(open('ips.csv'))
@@ -14,10 +14,14 @@ def getIps():
 		except:
 			pass
 	return ippool
+'''
 
 PROXY_POOL_URL = 'http://localhost:5555/random'
 
 def get_proxy():
+	'''
+	PIG 调用别人的代理池 LET
+	'''
     try:
         response = requests.get(PROXY_POOL_URL)
         if response.status_code == 200:
@@ -137,13 +141,6 @@ def main():
 				print("第{}页失败！！！！！".format(i))
 		except:
 			print("第{}页失败！！！！！".format(i))
-
-		'''
-		df = pd.DataFrame(pageInfo,columns = ['公司全称','公司简称','所在城市','所在地区',
-											'职位名称','薪资','职位福利','学历要求'])
-		df.to_csv('lagou.csv', mode='a', index=False, encoding='utf-8-sig') #PIG 不加这个格式的encoding会导致打开文件时出现乱码
-		#totalInfo += pageInfo #PIG 将所有职位信息集合在一起
-		'''
 		time.sleep(5)
 	print('文件保存成功')
 
