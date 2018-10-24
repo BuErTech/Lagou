@@ -24,12 +24,12 @@ def get_proxy():
 		https://github.com/Python3WebSpider/ProxyPool
 	LET
 	'''
-    try:
-        response = requests.get(PROXY_POOL_URL)
-        if response.status_code == 200:
-            return response.text
-    except ConnectionError:
-        return None
+	try:
+		response = requests.get(PROXY_POOL_URL)
+		if response.status_code == 200:
+			return response.text
+	except ConnectionError:
+		return None
 
 def getInfo(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
 	'''
