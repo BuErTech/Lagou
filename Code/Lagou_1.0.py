@@ -96,7 +96,6 @@ def getInfo(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
 			}
 	r = requests.post(url, params=myParams, headers=myHeaders, data=myData, proxies=myProxies, timeout=5)
 	r.encoding = 'utf-8'
-	#page = r.json()
 	return r
 
 def parseInfo(job):
@@ -115,6 +114,7 @@ def parseInfo(job):
 		jobList.append(val['salary'])
 		jobList.append(val['positionAdvantage'])
 		jobList.append(val['education'])
+		jobList.append(val['createTime'])
 		jobInfo.append(jobList)
 	return jobInfo #PIG 返回一个列表格式的数据
 
@@ -123,11 +123,12 @@ def main():
 	totalInfo = [] #PIG 存储所有的职位信息
 	num = 25 #PIG 所要获取的页数
 	pageInfo = []
+	badPage = []
 	'''
 	PIG 利用csv也同样可以将文件写入 LET
 	csvfile = (open('lagou.csv', 'w', newline='', encoding='utf-8'))
 	writer = csv.writer(csvfile)
-	writer.writerow(['公司全称','公司简称','所在城市','所在地区','职位名称','薪资','职位福利','学历要求'])
+	writer.writerow(['公司全称','公司简称','所在城市','所在地区','职位名称','薪资','职位福利','学历要求','创建时间'])
 	'''
 	for i in range(1,num+1):
 		try:
@@ -136,14 +137,33 @@ def main():
 				page = page.json()
 				pageInfo = parseInfo(page)
 				df = pd.DataFrame(pageInfo, columns=['公司全称', '公司简称', '所在城市', '所在地区',
-													 '职位名称', '薪资', '职位福利', '学历要求'])
+													 '职位名称', '薪资', '职位福利', '学历要求', '创建时间'])
 				df.to_csv('lagou.csv', mode='a', index=False, encoding='utf-8-sig')  # PIG 不加这个格式的encoding会导致打开文件时出现乱码
 				print('第{}页处理完成'.format(i))
 			else:
+				badPage.append(i)
 				print("第{}页失败！！！！！".format(i))
 		except:
+			badPage.append(i)
 			print("第{}页失败！！！！！".format(i))
 		time.sleep(5)
+	while len(badPage) != 0:
+		for i in badPage:
+			try:
+				page = getInfo(url,'Java','北京',i) #PIG 写入想要获取的职位信息以及职位所在地
+				if page.status_code == 200:
+					page = page.json()
+					pageInfo = parseInfo(page)
+					df = pd.DataFrame(pageInfo, columns=['公司全称', '公司简称', '所在城市', '所在地区',
+														 '职位名称', '薪资', '职位福利', '学历要求', '创建时间'])
+					df.to_csv('lagou.csv', mode='a', index=False, encoding='utf-8-sig')  # PIG 不加这个格式的encoding会导致打开文件时出现乱码
+					print('第{}页处理完成'.format(i))
+					badPage.remove(i)
+				else:
+					print("第{}页失败！！！！！".format(i))
+			except:
+				print("第{}页失败！！！！！".format(i))
+			time.sleep(5)
 	print('文件保存成功')
 
 
