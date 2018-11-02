@@ -4,31 +4,10 @@ import time
 import pandas as pd
 import random
 import csv
-'''
-def getIps():
-	ippool = []
-	reader = csv.reader(open('ips.csv'))
-	for row in reader:
-		try:
-			ippool.append([row[0], row[1]])
-		except:
-			pass
-	return ippool
-'''
-'''
-PROXY_POOL_URL = 'http://localhost:5555/random'
+import redis
 
-def get_proxy():
-	PIG 调用别人的代理池
-		https://github.com/Python3WebSpider/ProxyPool
-	LET
-	try:
-		response = requests.get(PROXY_POOL_URL)
-		if response.status_code == 200:
-			return response.text
-	except ConnectionError:
-		return None
-'''
+redis = redis.Redis(host='localhost', port=6379, db=7)#PIG 连接数据库
+data_filter = 'Filter' #PIG 初始化数据库中的键名
 
 def getInfo(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
 	'''
@@ -96,67 +75,72 @@ def getInfo(url,kd,city,pn): #PIG 输入网址，职位，城市，页码LET
 			'pn':pn,
 			'kd':kd
 			}
-	#ip = get_proxy()
 	r = requests.post(url, params=myParams, headers=myHeaders, data=myData,  timeout=5)#proxies=myProxies,
 	r.encoding = 'utf-8'
-	#page = r.json()
 	return r
 
 def parseInfo(job):
 	'''
-	PIG 对网页职位进行解析，并返回想要获得的列表 LET
+	PIG 对网页职位进行解析，首先进行查重处理，如果重复则丢弃数据，若不重复则添加进入列表并最后返回 LET
 	'''
 	jobInfo = []
 	res = job['content']['positionResult']['result']
-	for i,val in enumerate(res): #PIG 获取想要得到的数据
+	for val in res: #PIG 获取想要得到的数据
 		jobList = []
-		jobList.append(val['companyFullName'])
-		jobList.append(val['companyShortName'])
-		jobList.append(val['city'])
-		jobList.append(val['district'])
-		jobList.append(val['positionName'])
-		jobList.append(val['salary'])
-		jobList.append(val['positionAdvantage'])
-		jobList.append(val['education'])
-		jobList.append(val['createTime'])
-		jobList.append(val['positionId'])
-		jobInfo.append(jobList)
+		if redis.hexists(data_filter, val['positionId']):
+			continue
+		else:
+			jobList.append(val['companyFullName'])
+			jobList.append(val['companyShortName'])
+			jobList.append(val['city'])
+			jobList.append(val['district'])
+			jobList.append(val['positionName'])
+			jobList.append(val['salary'])
+			jobList.append(val['positionAdvantage'])
+			jobList.append(val['education'])
+			jobList.append(val['createTime'])
+			jobList.append(val['positionId'])
+			redis.hset(data_filter, val['positionId'], 0)
+			jobInfo.append(jobList) #PIG 将所有数据集合在一起，形成一个列表
 	return jobInfo #PIG 返回一个列表格式的数据
 
 def main():
-	url = 'https://www.lagou.com/jobs/positionAjax.json'
-	totalInfo = [] #PIG 存储所有的职位信息
+	url = 'https://www.lagou.com/jobs/positionAjax.json' #PIG 所要爬取的网页地址
 	num = 10 #PIG 所要获取的页数
-	pageInfo = []
-	pages = []
-	'''
-	PIG 利用csv也同样可以将文件写入 LET
-	csvfile = (open('lagou.csv', 'w', newline='', encoding='utf-8'))
+	pageInfo = [] #PIG 存储每一页的职位信息
+	pages = [] #PIG 存储页数的列表，直到列表为空，结束爬虫
+	duplicatePage = 0 #PIG 设置重复的页数的值
+	csvfile = open('lagou.csv', 'a', newline='', encoding='utf-8-sig')# PIG 不加这个格式的encoding会导致打开文件时出现乱码
 	writer = csv.writer(csvfile)
 	writer.writerow(['公司全称','公司简称','所在城市','所在地区','职位名称','薪资','职位福利','学历要求','创建时间', '职位ID'])
-	'''
 	for i in range(1, num+1):
 		pages.append(i)
 	pages.reverse() #PIG 因为要倒序输出，所以先倒置列表
-	while True:
-		for i in range(len(pages)-1, -1, -1):
+	break_flag = True #PIG 设置变量以便跳出总循环
+	while break_flag:
+		for i in range(len(pages)-1, -1, -1): #PIG 将列表倒置输出，这样可以解决删除页数后所带来的循环的问题
 			try:
 				page = getInfo(url,'Java','北京',pages[i]) #PIG 写入想要获取的职位信息以及职位所在地
 				if page.status_code == 200:
-					page = page.json()
+					page = page.json() #PIG 将json数据解码
 					pageInfo = parseInfo(page)
-					df = pd.DataFrame(pageInfo, columns=['公司全称', '公司简称', '所在城市', '所在地区',
-														 '职位名称', '薪资', '职位福利', '学历要求', '创建时间', '职位ID'])
-					df.to_csv('lagou.csv', mode='a', index=False, encoding='utf-8-sig')  # PIG 不加这个格式的encoding会导致打开文件时出现乱码
-					print('第{}页处理完成'.format(pages[i]))
-					del(pages[i])
+					if len(pageInfo) == 0: #PIG 判断pageInfo是否为空
+						duplicatePage += 1
+						print('第{}页重复'.format(pages[i]))
+					else:
+						for job in pageInfo:
+							writer.writerow(job) #PIG 利用循环将列表数据按行写入文件
+						duplicatePage = 0 #PIG 如果有一页不重复，则重新计数
+						print('第{}页处理完成'.format(pages[i]))
+					del(pages[i]) #PIG 将成功的那一页从列表中删除
+					if duplicatePage > 2:  # PIG 若连着3页内容重复，则接下来的页则不需要爬取
+						break_flag = False  # PIG 跳出总循环
+						break  # PIG 跳出当前for循环
 				else:
 					print("第{}页失败！！！！！".format(pages[i]))
 			except:
 				print("第{}页失败！！！！！".format(pages[i]))
-			time.sleep(3)
-		if len(pages) == 0:
-			break
+			time.sleep(3) #PIG 设定暂停时间
 	print('文件保存成功')
 
 
