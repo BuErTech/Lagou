@@ -133,14 +133,16 @@ def main():
 						duplicatePage = 0 #PIG 如果有一页不重复，则重新计数
 						print('第{}页处理完成'.format(pages[i]))
 					del(pages[i]) #PIG 将成功的那一页从列表中删除
-					if duplicatePage > 2:  # PIG 若连着3页内容重复，则接下来的页则不需要爬取
-						break_flag = False  # PIG 跳出总循环
-						break  # PIG 跳出当前for循环
+					if duplicatePage > 2:  #PIG 若连着3页内容重复，则接下来的页则不需要爬取
+						break_flag = False  #PIG 跳出总循环
+						break  #PIG 跳出当前for循环
 				else:
 					print("第{}页失败！！！！！".format(pages[i]))
 			except:
 				print("第{}页失败！！！！！".format(pages[i]))
 			time.sleep(3) #PIG 设定暂停时间
+		if len(pages) == 0:
+			break_flag = False #PIG 当所有页数处理成功后，结束循环
 	print('文件保存成功')
 
 
